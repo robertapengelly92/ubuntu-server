@@ -26,17 +26,15 @@ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/privat
 
 #------------------------------------------------------------------------------
 # Configure settings.
-# Note: Find settings in config/vsftpd/vsftpd.conf
 #------------------------------------------------------------------------------
-sudo cp /etc/vsftpd.conf /etc/vsftpd.conf.orig
-sudo nano /etc/vsftpd.conf
+sudo wget -q -O /etc/vsftpd.conf https://raw.githubusercontent.com/robertapengelly92/ubuntu-server/master/etc/vsftpd.conf
 
 #------------------------------------------------------------------------------
 # Enable nologin.
 #   - Add the following to the end:
 #     /usr/sbin/nologin
 #------------------------------------------------------------------------------
-sudo nano /etc/shells
+echo /sbin/nologin | sudo tee -a /etc/shells
 
 #------------------------------------------------------------------------------
 # Add the new user to the userlist and restart vsftp.
