@@ -1,0 +1,104 @@
+#==============================================================================
+# Secure all servers
+#==============================================================================
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get dist-upgrade
+history -c && reboot
+
+#------------------------------------------------------------------------------
+# Add a new user and only allow that user to login via ssh.
+#------------------------------------------------------------------------------
+sudo useradd <username> -s /bin/bash -g sudo -m
+sudo passwd <username>
+sudo passwd -l root
+
+#------------------------------------------------------------------------------
+# Secure ssh.
+#------------------------------------------------------------------------------
+sudo wget -q -O /etc/ssh/sshd_config https://raw.githubusercontent.com/robertapengelly92/ubuntu-server/master/etc/ssh/sshd_config
+
+#------------------------------------------------------------------------------
+# Restart ssh.
+#------------------------------------------------------------------------------
+sudo service ssh restart
+
+#------------------------------------------------------------------------------
+# Limit su to only root users.
+#------------------------------------------------------------------------------
+sudo dpkg-statoverride --update --add root sudo 4750 /bin/su
+
+#------------------------------------------------------------------------------
+# Secure shared memory.
+#------------------------------------------------------------------------------
+echo "tmpfs       /run/shm        tmpfs       defaults,noexec,nosuid     0       0" >> /etc/fstab
+
+#------------------------------------------------------------------------------
+# Secure swappiness.
+# Note: This is currently an experimental step.
+#------------------------------------------------------------------------------
+echo 0 | sudo tee /proc/sys/vm/swappiness
+echo vm.swappiness = 0 | sudo tee -a /etc/sysctl.conf
+
+#------------------------------------------------------------------------------
+; Find and secure swap.
+#------------------------------------------------------------------------------
+sudo swapon -s
+sudo chown root:root <swap drive>
+sudo chmod 0600 <swap drive>
+
+#------------------------------------------------------------------------------
+# Improve IP security.
+#------------------------------------------------------------------------------
+sudo wget -q -O /etc/sysctl.conf https://raw.githubusercontent.com/robertapengelly92/ubuntu-server/master/etc/sysctl.conf
+sudo wget -q -O /etc/sysctl.d/10-network-security.conf https://raw.githubusercontent.com/robertapengelly92/ubuntu-server/master//etc/sysctl.d/10-network-security.conf
+
+#------------------------------------------------------------------------------
+# Enable configurations.
+# Note: To check rules run sudo sysctl -p.
+#------------------------------------------------------------------------------
+sudo service procps start
+
+#------------------------------------------------------------------------------
+# Setup irqbalance:
+#------------------------------------------------------------------------------
+echo "ENABLED = 0" >> /etc/default/irqbalance
+
+#------------------------------------------------------------------------------
+# Configure host.conf:
+#------------------------------------------------------------------------------
+sudo wget -q -O /etc/host.conf https://raw.githubusercontent.com/robertapengelly92/ubuntu-server/master/etc/host.conf
+
+#------------------------------------------------------------------------------
+# Configure firewall.
+#------------------------------------------------------------------------------
+sudo iptables -I INPUT -i lo -j ACCEPT
+sudo iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -A INPUT -p tcp -m tcp --dport <ssh port> -j ACCEPT
+sudo iptables -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+sudo iptables -A INPUT -s <ip address ending with 0>/24 -j ACCEPT
+sudo iptables -P INPUT DROP
+
+#------------------------------------------------------------------------------
+# Check rules.
+#------------------------------------------------------------------------------
+sudo iptables -S
+
+#------------------------------------------------------------------------------
+# Save rules.
+#------------------------------------------------------------------------------
+sudo sh -c "iptables-save > /etc/iptables.rules"
+
+#------------------------------------------------------------------------------
+# Remove netplan and install ifupdown
+#------------------------------------------------------------------------------
+sudo apt -y install ifupdown
+sudo apt -y purge netplan.io
+sudo apt -y purge --auto-remove
+sudo rm -vfr /usr/share/netplan /etc/netplan
+sudo wget -q -O /etc/network/interfaces https://raw.githubusercontent.com/robertapengelly92/ubuntu-server/master/etc/network/interfaces
+
+#------------------------------------------------------------------------------
+# Reboot server.
+#------------------------------------------------------------------------------
+history -c && reboot
