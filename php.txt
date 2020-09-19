@@ -1,0 +1,14 @@
+#==============================================================================
+# Install and setup php
+#==============================================================================
+sudo apt -y install php libapache2-mod-php php-mysql php-curl php-dom php-mbstring
+
+#------------------------------------------------------------------------------
+# Configue
+#------------------------------------------------------------------------------
+sudo wget -q -O /etc/php/7.4/apache2/php.ini https://raw.githubusercontent.com/robertapengelly92/ubuntu-server/master/etc/php/7.4/apache2/php.ini
+
+#------------------------------------------------------------------------------
+# Restart apache.
+#------------------------------------------------------------------------------
+sudo service apache2 restart

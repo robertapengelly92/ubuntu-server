@@ -11,12 +11,12 @@ sudo service apache2 restart
 sudo wget -q -O /etc/apache2/mods-enabled/dir.conf https://raw.githubusercontent.com/robertapengelly92/ubuntu-server/master/etc/apache2/mods-enabled/dir.conf
 
 #------------------------------------------------------------------------------
-# Edit security.
+# Configure security.
 #------------------------------------------------------------------------------
 sudo wget -q -O /etc/apache2/conf-enabled/security.conf https://raw.githubusercontent.com/robertapengelly92/ubuntu-server/master/etc/apache2/conf-enabled/security.conf
 
 #------------------------------------------------------------------------------
-# Edit apache.
+# Configure apache.
 #------------------------------------------------------------------------------
 sudo wget -q -O /etc/apache2/apache2.conf https://raw.githubusercontent.com/robertapengelly92/ubuntu-server/master/etc/apache2/apache2.conf
 
@@ -52,4 +52,8 @@ sudo a2enmod proxy
 sudo a2enmod proxy_http
 sudo a2enmod proxy_wstunnel
 sudo a2enmod xml2enc
+
+#------------------------------------------------------------------------------
+# Restart apache.
+#------------------------------------------------------------------------------
 sudo service apache2 restart

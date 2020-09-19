@@ -1,0 +1,67 @@
+#==============================================================================
+# Install and setup vsftpd
+#==============================================================================
+sudo apt-get install vsftpd
+
+#------------------------------------------------------------------------------
+# Add a user.
+# Set the new user as the owner of the domain folder.
+# Set the relevant permissions on the domain.
+#------------------------------------------------------------------------------
+sudo useradd <username> -s /usr/sbin/noogin -g www-data
+sudo passwd <username>
+sudo chown -R <username>:wwww-data /var/www/example.com
+sudo chmod 755 $(sudo find /var/www/huddlr.co.uk -type d)
+sudo chmod 644 $(sudo find /var/www/huddlr.co.uk -type f)
+
+#------------------------------------------------------------------------------
+# Create a symbolic link to the domain.
+#------------------------------------------------------------------------------
+sudo ln -s /var/www/example.com /home/<username>
+
+#------------------------------------------------------------------------------
+# Create a self signed key for vsftpd.
+#------------------------------------------------------------------------------
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/vsftpd.pem -out /etc/ssl/private/vsftpd.pem -subj "/CN=Let's Encrypt Authority x3/"
+
+#------------------------------------------------------------------------------
+# Configure settings.
+# Note: Find settings in config/vsftpd/vsftpd.conf
+#------------------------------------------------------------------------------
+sudo cp /etc/vsftpd.conf /etc/vsftpd.conf.orig
+sudo nano /etc/vsftpd.conf
+
+#------------------------------------------------------------------------------
+# Enable nologin.
+#   - Add the following to the end:
+#     /usr/sbin/nologin
+#------------------------------------------------------------------------------
+sudo nano /etc/shells
+
+#------------------------------------------------------------------------------
+# Add the new user to the userlist and restart vsftp.
+#------------------------------------------------------------------------------
+echo "<username>" | sudo tee -a /etc/vsftpd.userlist
+
+#------------------------------------------------------------------------------
+# Configure firewall.
+#------------------------------------------------------------------------------
+sudo iptables -A INPUT -p tcp -m tcp --dport <vsftpd port> -j ACCEPT
+sudo iptables -A INPUT -p tcp -m tcp --dport <passive port min>:<passive port max> -j ACCEPT
+
+#------------------------------------------------------------------------------
+# Check rules.
+#------------------------------------------------------------------------------
+sudo iptables -S
+
+#------------------------------------------------------------------------------
+# Save rules.
+#------------------------------------------------------------------------------
+sudo sh -c "iptables-save > /etc/iptables.rules"
+
+#------------------------------------------------------------------------------
+# Check rules against config/apache/iptables.rules.
+# Reboot the server.
+#------------------------------------------------------------------------------
+sudo cat /etc/iptables.rules
+history -c && reboot
