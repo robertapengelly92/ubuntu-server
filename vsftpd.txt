@@ -1,18 +1,18 @@
 #==============================================================================
 # Install and setup vsftpd
 #==============================================================================
-sudo apt-get install vsftpd
+sudo apt -y install vsftpd
 
 #------------------------------------------------------------------------------
 # Add a user.
 # Set the new user as the owner of the domain folder.
 # Set the relevant permissions on the domain.
 #------------------------------------------------------------------------------
-sudo useradd <username> -s /usr/sbin/noogin -g www-data
+sudo useradd <username> -s /sbin/nologin -g www-data
 sudo passwd <username>
-sudo chown -R <username>:wwww-data /var/www/example.com
-sudo chmod 755 $(sudo find /var/www/huddlr.co.uk -type d)
-sudo chmod 644 $(sudo find /var/www/huddlr.co.uk -type f)
+sudo chown -R <username>:www-data /var/www/example.com
+sudo chmod 755 $(sudo find /var/www/example.com -type d)
+sudo chmod 644 $(sudo find /var/www/example.com -type f)
 
 #------------------------------------------------------------------------------
 # Create a symbolic link to the domain.
