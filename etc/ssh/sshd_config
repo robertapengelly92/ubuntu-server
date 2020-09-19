@@ -10,7 +10,7 @@
 # possible, but leave them commented.  Uncommented options override the
 # default value.
 
-Port 22
+Port <ssh port>
 #AddressFamily any
 ListenAddress <server ip address>
 ListenAddress 127.0.0.1
